@@ -1,0 +1,127 @@
+classDiagram
+    class FirebaseAuth {
+        +String uid
+        +String email
+        +createUserWithEmailAndPassword()
+        +signInWithEmailAndPassword()
+        +signOut()
+        +onAuthStateChanged()
+    }
+
+    class User {
+        +String uid
+        +String fullName
+        +String email
+        +int age
+        +String gender
+        +List~String~ conditions
+        +String createdAt
+    }
+
+    class HealthData {
+        +String id
+        +String userId
+        +String timestamp
+        +String createdAt
+        +BloodPressure bloodPressure
+        +int heartRate
+        +int bloodSugar
+        +float weight
+        +String notes
+    }
+
+    class BloodPressure {
+        +int systolic
+        +int diastolic
+    }
+
+    class Reminder {
+        +String id
+        +String userId
+        +String type
+        +String title
+        +String dateTime
+        +String notes
+        +Boolean completed
+        +String createdAt
+    }
+
+    class Firestore {
+        <<database>>
+        +Collection users
+        +Collection healthData
+        +Collection reminders
+        +addDoc()
+        +getDoc()
+        +getDocs()
+        +updateDoc()
+        +deleteDoc()
+    }
+
+    class LandingPage {
+        <<page: index.html>>
+        +renderHero()
+        +renderFeatures()
+        +renderAbout()
+        +renderDoctors()
+        +renderTestimonials()
+    }
+
+    class LoginPage {
+        <<page: login.html>>
+        +String email
+        +String password
+        +handleLogin()
+        +redirectToDashboard()
+    }
+
+    class RegisterPage {
+        <<page: register.html>>
+        +String fullName
+        +int age
+        +String gender
+        +String email
+        +String password
+        +String[] conditions
+        +handleRegister()
+        +saveUserProfile()
+    }
+
+    class Dashboard {
+        <<page: dashboard.html>>
+        +loadUserProfile()
+        +loadHealthData()
+        +loadReminders()
+        +loadHealthTips()
+        +renderCharts()
+        +filterByDateRange()
+        +updateLatestStats()
+        +handleLogout()
+    }
+
+    class HealthTips {
+        <<static content>>
+        +String category
+        +String tip
+        +renderTips()
+    }
+
+    FirebaseAuth "1" --> "1" User : authenticates
+    User "1" --> "0..*" HealthData : logs
+    User "1" --> "0..*" Reminder : creates
+    HealthData "1" *-- "0..1" BloodPressure : contains
+    Firestore --> User : stores
+    Firestore --> HealthData : stores
+    Firestore --> Reminder : stores
+    FirebaseAuth --> Firestore : connects to
+
+    LandingPage --> LoginPage : navigates to
+    LandingPage --> RegisterPage : navigates to
+    LoginPage --> FirebaseAuth : authenticates via
+    RegisterPage --> FirebaseAuth : registers via
+    RegisterPage --> Firestore : saves profile
+    LoginPage --> Dashboard : redirects on success
+    RegisterPage --> Dashboard : redirects on success
+    Dashboard --> FirebaseAuth : checks auth state
+    Dashboard --> Firestore : reads/writes data
+    Dashboard --> HealthTips : displays

@@ -11,216 +11,391 @@
    <link rel="stylesheet" href="style.css">
    <link rel="stylesheet" href="css/custom.css">
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    <style>
+      *, *::before, *::after { box-sizing: border-box; }
       body {
-         background: #f5f7fa;
-         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+         background: #f1f5f9;
+         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         color: #111827;
+         margin: 0;
       }
+
+      /* ─── Navbar ─── */
       .navbar-custom {
-         background: white;
-         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-         padding: 15px 0;
+         background: #ffffff;
+         border-bottom: 1px solid #e9ecef;
+         padding: 0;
+         height: 62px;
+         display: flex;
+         align-items: center;
+         position: sticky;
+         top: 0;
+         z-index: 100;
+      }
+      .navbar-custom .container { height: 100%; }
+      .navbar-inner {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         height: 100%;
       }
       .navbar-brand-custom {
-         font-size: 28px;
+         font-size: 22px;
          font-weight: 700;
-         color: #2895f1 !important;
+         color: #1a73e8 !important;
+         text-decoration: none;
+         letter-spacing: -0.3px;
+         display: flex;
+         align-items: center;
+         gap: 8px;
+      }
+      .navbar-brand-custom::before {
+         content: '\f21e';
+         font-family: 'FontAwesome';
+         font-size: 20px;
+         color: #1a73e8;
       }
       .navbar-nav-custom {
          display: flex;
          align-items: center;
-         gap: 20px;
+         gap: 14px;
+      }
+      .user-chip {
+         display: flex;
+         align-items: center;
+         gap: 8px;
+         background: #f1f5f9;
+         border-radius: 100px;
+         padding: 5px 14px 5px 6px;
+      }
+      .user-avatar {
+         width: 30px; height: 30px;
+         border-radius: 50%;
+         background: #1a73e8;
+         color: white;
+         font-size: 12px;
+         font-weight: 600;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         flex-shrink: 0;
       }
       .user-name {
-         color: #333;
+         color: #374151;
+         font-size: 13px;
          font-weight: 500;
+         max-width: 160px;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
       }
       .btn-logout {
-         background: #dc3545;
-         color: white;
-         border: none;
-         padding: 8px 20px;
-         border-radius: 5px;
+         background: transparent;
+         color: #6b7280;
+         border: 1.5px solid #e5e7eb;
+         padding: 6px 16px;
+         border-radius: 8px;
          cursor: pointer;
-         transition: all 0.3s;
+         font-size: 13px;
+         font-weight: 500;
+         font-family: 'Inter', sans-serif;
+         transition: all 0.18s;
       }
       .btn-logout:hover {
-         background: #c82333;
+         background: #fef2f2;
+         border-color: #fca5a5;
+         color: #dc2626;
       }
-      .dashboard-container {
-         padding: 30px 15px;
-      }
+
+      /* ─── Dashboard container ─── */
+      .dashboard-container { padding: 36px 15px; }
+
+      /* ─── Welcome section ─── */
       .welcome-section {
-         background: linear-gradient(135deg, #2895f1 0%, #0060b1 100%);
+         background: linear-gradient(120deg, #1a73e8 0%, #0049a3 100%);
          color: white;
-         padding: 30px;
-         border-radius: 10px;
-         margin-bottom: 30px;
+         padding: 36px 40px;
+         border-radius: 16px;
+         margin-bottom: 32px;
+         position: relative;
+         overflow: hidden;
+      }
+      .welcome-section::after {
+         content: '\f21e';
+         font-family: 'FontAwesome';
+         position: absolute;
+         right: 32px; top: 50%;
+         transform: translateY(-50%);
+         font-size: 96px;
+         opacity: 0.07;
+         pointer-events: none;
       }
       .welcome-section h1 {
-         margin: 0 0 10px 0;
-         font-weight: 600;
+         margin: 0 0 8px 0;
+         font-size: 24px;
+         font-weight: 700;
+         letter-spacing: -0.3px;
       }
       .welcome-section p {
          margin: 0;
-         opacity: 0.9;
+         opacity: 0.8;
+         font-size: 14px;
       }
+
+      /* ─── Nav pills ─── */
+      .nav-pills {
+         display: flex;
+         gap: 6px;
+         margin-bottom: 28px;
+         background: #ffffff;
+         border: 1px solid #e5e7eb;
+         border-radius: 12px;
+         padding: 6px;
+         width: fit-content;
+         max-width: 100%;
+      }
+      .nav-pills .nav-link {
+         padding: 8px 18px;
+         border-radius: 8px;
+         background: transparent;
+         color: #6b7280;
+         border: none;
+         cursor: pointer;
+         font-size: 13px;
+         font-weight: 500;
+         font-family: 'Inter', sans-serif;
+         transition: all 0.18s;
+         white-space: nowrap;
+      }
+      .nav-pills .nav-link:hover { background: #f1f5f9; color: #374151; }
+      .nav-pills .nav-link.active {
+         background: #1a73e8;
+         color: white;
+         box-shadow: 0 2px 8px rgba(26,115,232,0.3);
+      }
+
+      /* ─── Section heading ─── */
+      .section-heading {
+         font-size: 13px;
+         font-weight: 700;
+         color: #9ca3af;
+         text-transform: uppercase;
+         letter-spacing: 0.07em;
+         margin: 0 0 18px 0;
+      }
+
+      /* ─── Cards ─── */
       .card {
          background: white;
-         border-radius: 10px;
-         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-         padding: 25px;
-         margin-bottom: 25px;
-         border: none;
+         border-radius: 14px;
+         border: 1px solid #f0f0f0;
+         box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+         padding: 28px;
+         margin-bottom: 24px;
       }
       .card-title {
-         font-size: 20px;
+         font-size: 15px;
          font-weight: 600;
-         color: #333;
+         color: #111827;
          margin-bottom: 20px;
+         padding-bottom: 14px;
+         border-bottom: 1px solid #f3f4f6;
          display: flex;
          align-items: center;
          justify-content: space-between;
+         gap: 10px;
       }
+
+      /* ─── Stat cards ─── */
       .stat-card {
          background: white;
-         border-radius: 10px;
-         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-         padding: 20px;
+         border-radius: 14px;
+         border: 1px solid #f0f0f0;
+         box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+         padding: 22px 20px;
          margin-bottom: 20px;
-         transition: transform 0.3s;
+         display: flex;
+         flex-direction: column;
+         gap: 6px;
+         transition: box-shadow 0.2s, transform 0.2s;
+         position: relative;
+         overflow: hidden;
       }
       .stat-card:hover {
-         transform: translateY(-5px);
-         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+         box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+         transform: translateY(-2px);
       }
+      .stat-card::before {
+         content: '';
+         position: absolute;
+         left: 0; top: 0; bottom: 0;
+         width: 4px;
+         border-radius: 4px 0 0 4px;
+         background: var(--stat-color, #1a73e8);
+      }
+      .stat-card { padding-left: 24px; }
       .stat-icon {
-         width: 50px;
-         height: 50px;
+         width: 40px; height: 40px;
          border-radius: 10px;
          display: flex;
          align-items: center;
          justify-content: center;
-         font-size: 24px;
+         font-size: 18px;
          color: white;
-         margin-bottom: 15px;
+         margin-bottom: 10px;
+         background: var(--stat-color, #1a73e8);
       }
-      .stat-label {
-         color: #666;
-         font-size: 14px;
-         margin-bottom: 5px;
-      }
-      .stat-value {
-         font-size: 24px;
-         font-weight: 700;
-         color: #333;
-      }
-      .stat-unit {
-         font-size: 14px;
-         color: #999;
-         font-weight: 400;
-      }
+      .stat-label { color: #6b7280; font-size: 12px; font-weight: 500; letter-spacing: 0.02em; }
+      .stat-value { font-size: 26px; font-weight: 700; color: #111827; line-height: 1.1; }
+      .stat-unit { font-size: 12px; color: #9ca3af; }
+
+      /* ─── Buttons ─── */
       .btn-primary-custom {
-         background: #2895f1;
+         background: #1a73e8;
          border: none;
          color: white;
-         padding: 10px 20px;
-         border-radius: 5px;
+         padding: 9px 20px;
+         border-radius: 8px;
          cursor: pointer;
-         transition: all 0.3s;
-         font-weight: 500;
+         font-family: 'Inter', sans-serif;
+         font-size: 13px;
+         font-weight: 600;
+         transition: background 0.18s, box-shadow 0.18s;
+         letter-spacing: 0.01em;
       }
       .btn-primary-custom:hover {
-         background: #0060b1;
+         background: #1558b0;
+         box-shadow: 0 3px 10px rgba(26,115,232,0.3);
       }
-      .form-group {
-         margin-bottom: 20px;
-      }
+
+      /* ─── Form elements ─── */
+      .form-group { margin-bottom: 20px; }
       .form-group label {
-         font-weight: 500;
-         color: #333;
-         margin-bottom: 8px;
          display: block;
+         font-size: 13px;
+         font-weight: 600;
+         color: #374151;
+         margin-bottom: 7px;
       }
       .form-control {
-         height: 45px;
-         border-radius: 5px;
-         border: 1px solid #ddd;
-         padding: 10px 15px;
+         display: block;
+         width: 100%;
+         height: 46px;
+         border: 1.5px solid #e5e7eb;
+         border-radius: 8px;
+         padding: 10px 14px;
+         font-size: 14px;
+         color: #111827;
+         background: #f9fafb;
+         font-family: 'Inter', sans-serif;
+         transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+         outline: none;
       }
+      .form-control:focus {
+         border-color: #1a73e8;
+         background: #fff;
+         box-shadow: 0 0 0 3px rgba(26,115,232,0.13);
+      }
+      textarea.form-control { height: auto; resize: vertical; }
+
+      /* ─── Modal ─── */
       .modal {
          display: none;
          position: fixed;
          z-index: 1000;
-         left: 0;
-         top: 0;
-         width: 100%;
-         height: 100%;
+         left: 0; top: 0;
+         width: 100%; height: 100%;
          overflow: auto;
-         background-color: rgba(0,0,0,0.5);
+         background-color: rgba(15,23,42,0.5);
+         backdrop-filter: blur(3px);
       }
       .modal-content {
-         background-color: #fefefe;
+         background-color: #fff;
          margin: 5% auto;
-         padding: 0;
-         border-radius: 10px;
+         border-radius: 16px;
          width: 90%;
          max-width: 500px;
-         box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+         box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+         overflow: hidden;
       }
       .modal-header {
-         padding: 20px 25px;
-         border-bottom: 1px solid #eee;
+         padding: 22px 28px;
+         border-bottom: 1px solid #f3f4f6;
          display: flex;
          justify-content: space-between;
          align-items: center;
       }
-      .modal-header h3 {
-         margin: 0;
-         color: #333;
-         font-weight: 600;
-      }
-      .modal-body {
-         padding: 25px;
-      }
+      .modal-header h3 { margin: 0; font-size: 17px; font-weight: 700; color: #111827; }
+      .modal-body { padding: 28px; }
       .close {
-         color: #aaa;
-         font-size: 28px;
-         font-weight: bold;
-         cursor: pointer;
-         background: none;
-         border: none;
+         color: #9ca3af; font-size: 24px; font-weight: 400;
+         cursor: pointer; background: none; border: none;
+         line-height: 1; padding: 0;
       }
-      .close:hover {
-         color: #000;
+      .close:hover { color: #374151; }
+
+      /* ─── Alert ─── */
+      .alert { border-radius: 8px; padding: 12px 16px; font-size: 14px; border: none; }
+      .alert-danger { background: #fef2f2; color: #991b1b; }
+      .alert-success { background: #f0fdf4; color: #166534; }
+      .alert-warning { background: #fffbeb; color: #92400e; }
+
+      /* ══════════════════════════════════
+         MOBILE RESPONSIVENESS
+      ══════════════════════════════════ */
+      @media (max-width: 992px) {
+         .col-md-6 { width: 100%; }
+         .col-md-8, .col-md-4 { width: 100%; }
+         .col-md-8.col-md-offset-2 { width: 100%; margin-left: 0; }
       }
-      .nav-pills {
-         margin-bottom: 20px;
-         display: flex;
-         gap: 10px;
-         flex-wrap: wrap;
-      }
-      .nav-pills .nav-link {
-         padding: 10px 20px;
-         border-radius: 5px;
-         background: #f5f5f5;
-         color: #666;
-         border: none;
-         cursor: pointer;
-         transition: all 0.3s;
-      }
-      .nav-pills .nav-link.active {
-         background: #2895f1;
-         color: white;
-      }
+
       @media (max-width: 768px) {
-         .navbar-nav-custom {
-            flex-direction: column;
-            gap: 10px;
+         .navbar-custom { height: 56px; }
+         .navbar-brand-custom { font-size: 19px; }
+         .user-name { max-width: 110px; }
+         .btn-logout { padding: 5px 12px; }
+         .dashboard-container { padding: 20px 10px; }
+         .welcome-section { padding: 24px 22px; border-radius: 12px; margin-bottom: 22px; }
+         .welcome-section::after { display: none; }
+         .welcome-section h1 { font-size: 19px; }
+         .welcome-section p { font-size: 13px; }
+         .nav-pills {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
          }
-         .dashboard-container {
-            padding: 15px 10px;
-         }
+         .nav-pills::-webkit-scrollbar { display: none; }
+         .nav-pills .nav-link { flex-shrink: 0; padding: 7px 14px; font-size: 12px; }
+         .card { padding: 18px; margin-bottom: 16px; border-radius: 12px; }
+         .card-title { font-size: 14px; margin-bottom: 14px; padding-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+         .stat-card { padding: 16px 16px 16px 22px; margin-bottom: 14px; border-radius: 12px; }
+         .stat-icon { width: 36px; height: 36px; font-size: 16px; margin-bottom: 8px; }
+         .stat-value { font-size: 22px; }
+         .stat-label { font-size: 11px; }
+         .btn-group { display: flex; width: 100%; }
+         .btn-group .btn { flex: 1; padding: 7px 4px; font-size: 12px; }
+         #bpChartContainer, #hrChartContainer, #bsChartContainer, #weightChartContainer { min-height: 220px; }
+         .form-group { margin-bottom: 14px; }
+         .form-control { height: 44px; font-size: 14px; }
+         .modal-content { width: 96%; margin: 8% auto; border-radius: 14px; }
+         .modal-header { padding: 16px 20px; }
+         .modal-body { padding: 20px; }
+      }
+
+      @media (max-width: 480px) {
+         .welcome-section h1 { font-size: 17px; }
+         .stat-value { font-size: 20px; }
+         .card { padding: 14px; }
+         .user-chip { display: none; }
+         .navbar-nav-custom { gap: 8px; }
       }
    </style>
 </head>
@@ -228,11 +403,14 @@
    <!-- Navigation -->
    <nav class="navbar-custom">
       <div class="container">
-         <div style="display: flex; justify-content: space-between; align-items: center;">
+         <div class="navbar-inner">
             <a href="dashboard.html" class="navbar-brand-custom">health+</a>
             <div class="navbar-nav-custom">
-               <span class="user-name" id="userName">Loading...</span>
-               <button class="btn-logout" id="logoutBtn">Logout</button>
+               <div class="user-chip">
+                  <div class="user-avatar" id="userAvatar">U</div>
+                  <span class="user-name" id="userName">Loading...</span>
+               </div>
+               <button class="btn-logout" id="logoutBtn">Sign out</button>
             </div>
          </div>
       </div>
@@ -260,9 +438,9 @@
          <div id="overview-tab" class="tab-content">
             <!-- Latest Stats -->
             <div class="row">
-               <div class="col-md-3 col-sm-6">
-                  <div class="stat-card">
-                     <div class="stat-icon" style="background: #e74c3c;">
+               <div class="col-md-3 col-sm-6 col-xs-6">
+                  <div class="stat-card" style="--stat-color: #e74c3c;">
+                     <div class="stat-icon">
                         <i class="fa fa-heartbeat"></i>
                      </div>
                      <div class="stat-label">Blood Pressure</div>
@@ -270,9 +448,9 @@
                      <div class="stat-unit">mmHg</div>
                   </div>
                </div>
-               <div class="col-md-3 col-sm-6">
-                  <div class="stat-card">
-                     <div class="stat-icon" style="background: #3498db;">
+               <div class="col-md-3 col-sm-6 col-xs-6">
+                  <div class="stat-card" style="--stat-color: #3498db;">
+                     <div class="stat-icon">
                         <i class="fa fa-heart"></i>
                      </div>
                      <div class="stat-label">Heart Rate</div>
@@ -280,9 +458,9 @@
                      <div class="stat-unit">bpm</div>
                   </div>
                </div>
-               <div class="col-md-3 col-sm-6">
-                  <div class="stat-card">
-                     <div class="stat-icon" style="background: #9b59b6;">
+               <div class="col-md-3 col-sm-6 col-xs-6">
+                  <div class="stat-card" style="--stat-color: #9b59b6;">
+                     <div class="stat-icon">
                         <i class="fa fa-tint"></i>
                      </div>
                      <div class="stat-label">Blood Sugar</div>
@@ -290,9 +468,9 @@
                      <div class="stat-unit">mg/dL</div>
                   </div>
                </div>
-               <div class="col-md-3 col-sm-6">
-                  <div class="stat-card">
-                     <div class="stat-icon" style="background: #2ecc71;">
+               <div class="col-md-3 col-sm-6 col-xs-6">
+                  <div class="stat-card" style="--stat-color: #2ecc71;">
+                     <div class="stat-icon">
                         <i class="fa fa-balance-scale"></i>
                      </div>
                      <div class="stat-label">Weight</div>
@@ -481,7 +659,7 @@
          <!-- Reminders Tab -->
          <div id="reminders-tab" class="tab-content" style="display: none;">
             <div class="row">
-               <div class="col-md-8">
+               <div class="col-md-8 col-xs-12">
                   <div class="card">
                      <div class="card-title">
                         My Reminders
@@ -490,7 +668,7 @@
                      <div id="remindersList"></div>
                   </div>
                </div>
-               <div class="col-md-4">
+               <div class="col-md-4 col-xs-12">
                   <div class="card" style="background: linear-gradient(135deg, #2895f1 0%, #0060b1 100%); color: white;">
                      <h4 style="margin-top: 0; color: white;">Reminder Tips</h4>
                      <p style="font-size: 14px; opacity: 0.9;">Set reminders for:</p>

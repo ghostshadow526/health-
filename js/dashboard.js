@@ -28,6 +28,8 @@ async function loadUserProfile() {
       if (userDoc.exists()) {
          const userData = userDoc.data();
          document.getElementById('userName').textContent = userData.fullName;
+         const avatarEl = document.getElementById('userAvatar');
+         if (avatarEl) avatarEl.textContent = userData.fullName.charAt(0).toUpperCase();
          document.getElementById('welcomeMessage').textContent = `Welcome back, ${userData.fullName.split(' ')[0]}!`;
       }
    } catch (error) {
