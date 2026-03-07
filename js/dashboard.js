@@ -5,6 +5,25 @@ const Chart = window.Chart;
 
 let currentUser = null;
 let bpChart, hrChart, bsChart, weightChart;
+
+function showToast(type, title, message = '') {
+   const container = document.getElementById('toast-container');
+   if (!container) return;
+   const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle' };
+   const toast = document.createElement('div');
+   toast.className = `toast toast-${type}`;
+   toast.innerHTML = `
+      <i class="fa ${icons[type] || 'fa-info-circle'} toast-icon"></i>
+      <div class="toast-body">
+         <div class="toast-title">${title}</div>
+         ${message ? `<div class="toast-msg">${message}</div>` : ''}
+      </div>`;
+   container.appendChild(toast);
+   setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 300);
+   }, 4000);
+}
 let allHealthRecords = []; // Store all records for filtering
 let currentFilter = 7; // Default to 7 days
 
@@ -30,7 +49,9 @@ async function loadUserProfile() {
          document.getElementById('userName').textContent = userData.fullName;
          const avatarEl = document.getElementById('userAvatar');
          if (avatarEl) avatarEl.textContent = userData.fullName.charAt(0).toUpperCase();
-         document.getElementById('welcomeMessage').textContent = `Welcome back, ${userData.fullName.split(' ')[0]}!`;
+         document.getElementById('welcomeMessage').textContent = userData.fullName;
+         const welcomeAvatarEl = document.getElementById('welcomeAvatar');
+         if (welcomeAvatarEl) welcomeAvatarEl.textContent = userData.fullName.charAt(0).toUpperCase();
       }
    } catch (error) {
       console.error('Error loading profile:', error);
@@ -81,7 +102,7 @@ healthDataForm.addEventListener('submit', async (e) => {
    const notes = document.getElementById('notes').value;
 
    if (!systolic && !diastolic && !heartRate && !bloodSugar && !weight) {
-      alert('Please enter at least one health metric.');
+      showToast('warning', 'Nothing to save', 'Please enter at least one health metric.');
       return;
    }
 
@@ -105,7 +126,12 @@ healthDataForm.addEventListener('submit', async (e) => {
 
       await addDoc(collection(db, 'healthData'), healthData);
 
-      alert('Saved');
+      const savedItems = [];
+      if (systolic && diastolic) savedItems.push(`Blood pressure (${systolic}/${diastolic} mmHg)`);
+      if (heartRate) savedItems.push(`Heart rate (${heartRate} bpm)`);
+      if (bloodSugar) savedItems.push(`Blood sugar (${bloodSugar} mg/dL)`);
+      if (weight) savedItems.push(`Weight (${weight} kg)`);
+      showToast('success', 'Health data saved!', savedItems.join(' · '));
       healthDataForm.reset();
       document.getElementById('measurementTime').value = now.toISOString().slice(0, 16);
       
@@ -114,7 +140,7 @@ healthDataForm.addEventListener('submit', async (e) => {
       document.querySelector('.nav-link[data-tab="overview"]').click();
    } catch (error) {
       console.error('Error saving health data:', error);
-      alert('Failed to save health data. Please try again.');
+      showToast('error', 'Save failed', 'Could not save health data. Please try again.');
    }
 });
 
@@ -1246,13 +1272,13 @@ reminderForm.addEventListener('submit', async (e) => {
 
    try {
       await addDoc(collection(db, 'reminders'), reminderData);
-      alert('Saved');
+      showToast('success', 'Reminder saved!', reminderData.title);
       reminderForm.reset();
       reminderModal.style.display = 'none';
       await loadReminders();
    } catch (error) {
       console.error('Error adding reminder:', error);
-      alert('Failed to add reminder. Please try again.');
+      showToast('error', 'Save failed', 'Could not save reminder. Please try again.');
    }
 });
 

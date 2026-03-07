@@ -117,7 +117,7 @@
       .welcome-section {
          background: linear-gradient(120deg, #1a73e8 0%, #0049a3 100%);
          color: white;
-         padding: 36px 40px;
+         padding: 32px 40px;
          border-radius: 16px;
          margin-bottom: 32px;
          position: relative;
@@ -133,16 +133,38 @@
          opacity: 0.07;
          pointer-events: none;
       }
-      .welcome-section h1 {
-         margin: 0 0 8px 0;
-         font-size: 24px;
-         font-weight: 700;
-         letter-spacing: -0.3px;
+      .welcome-profile {
+         display: flex;
+         align-items: center;
+         gap: 20px;
+         position: relative;
+         z-index: 1;
       }
-      .welcome-section p {
-         margin: 0;
-         opacity: 0.8;
-         font-size: 14px;
+      .welcome-avatar-img {
+         width: 64px; height: 64px;
+         border-radius: 50%;
+         background: rgba(255,255,255,0.22);
+         border: 3px solid rgba(255,255,255,0.5);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-size: 26px;
+         font-weight: 700;
+         color: white;
+         flex-shrink: 0;
+         letter-spacing: -0.5px;
+      }
+      .welcome-info { display: flex; flex-direction: column; gap: 4px; }
+      .welcome-name {
+         font-size: 22px;
+         font-weight: 700;
+         color: white;
+         letter-spacing: -0.3px;
+         line-height: 1.2;
+      }
+      .welcome-subtitle {
+         color: rgba(255,255,255,0.75);
+         font-size: 13px;
       }
 
       /* ─── Nav pills ─── */
@@ -337,11 +359,65 @@
       }
       .close:hover { color: #374151; }
 
-      /* ─── Alert ─── */
-      .alert { border-radius: 8px; padding: 12px 16px; font-size: 14px; border: none; }
-      .alert-danger { background: #fef2f2; color: #991b1b; }
-      .alert-success { background: #f0fdf4; color: #166534; }
-      .alert-warning { background: #fffbeb; color: #92400e; }
+      /* ─── Toast notification ─── */
+      #toast-container {
+         position: fixed;
+         bottom: 28px;
+         right: 28px;
+         z-index: 9999;
+         display: flex;
+         flex-direction: column;
+         gap: 10px;
+         pointer-events: none;
+      }
+      .toast {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+         background: #1e293b;
+         color: #f1f5f9;
+         padding: 14px 18px;
+         border-radius: 12px;
+         font-size: 14px;
+         font-weight: 500;
+         min-width: 280px;
+         max-width: 380px;
+         box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+         pointer-events: all;
+         animation: toastIn 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
+         border-left: 4px solid #1a73e8;
+      }
+      .toast.toast-success { border-left-color: #22c55e; }
+      .toast.toast-error   { border-left-color: #ef4444; }
+      .toast.toast-warning { border-left-color: #f59e0b; }
+      .toast-icon { font-size: 18px; flex-shrink: 0; }
+      .toast.toast-success .toast-icon { color: #22c55e; }
+      .toast.toast-error   .toast-icon { color: #ef4444; }
+      .toast.toast-warning .toast-icon { color: #f59e0b; }
+      .toast-body { flex: 1; line-height: 1.4; }
+      .toast-title { font-weight: 700; font-size: 13px; margin-bottom: 2px; color: #fff; }
+      .toast-msg   { font-size: 13px; color: #94a3b8; }
+      .toast.toast-hide {
+         animation: toastOut 0.3s ease forwards;
+      }
+      @keyframes toastIn {
+         from { opacity: 0; transform: translateX(40px) scale(0.95); }
+         to   { opacity: 1; transform: translateX(0) scale(1); }
+      }
+      @keyframes toastOut {
+         from { opacity: 1; transform: translateX(0) scale(1); }
+         to   { opacity: 0; transform: translateX(40px) scale(0.95); }
+      }
+
+      /* ─── Mobile welcome adjustments ─── */
+      @media (max-width: 768px) {
+         .welcome-avatar-img { width: 52px; height: 52px; font-size: 20px; }
+         .welcome-name { font-size: 18px; }
+         .welcome-subtitle { font-size: 12px; }
+         .welcome-profile { gap: 14px; }
+         #toast-container { bottom: 16px; right: 12px; left: 12px; }
+         .toast { min-width: unset; width: 100%; max-width: 100%; }
+      }
 
       /* ══════════════════════════════════
          MOBILE RESPONSIVENESS
@@ -421,8 +497,13 @@
       <div class="container">
          <!-- Welcome Section -->
          <div class="welcome-section">
-            <h1 id="welcomeMessage">Welcome Back!</h1>
-            <p>Track your health metrics and stay on top of your wellness journey</p>
+            <div class="welcome-profile">
+               <div class="welcome-avatar-img" id="welcomeAvatar">U</div>
+               <div class="welcome-info">
+                  <div class="welcome-name" id="welcomeMessage">Loading...</div>
+                  <div class="welcome-subtitle">Track your health metrics and stay on top of your wellness journey</div>
+               </div>
+            </div>
          </div>
 
          <!-- Navigation Pills -->
@@ -794,6 +875,9 @@
          </div>
       </div>
    </div>
+
+   <!-- Toast container -->
+   <div id="toast-container"></div>
 
    <!-- Include jQuery (required for Bootstrap) -->
    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
