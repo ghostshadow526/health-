@@ -252,6 +252,136 @@
       @media (max-width: 360px) {
          .register-form-panel { padding: 24px 14px; }
       }
+
+      /* ═══════════════════════════════
+         ANIMATIONS
+      ═══════════════════════════════ */
+
+      /* Keyframes */
+      @keyframes slideInLeft {
+         from { opacity: 0; transform: translateX(-40px); }
+         to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slideInRight {
+         from { opacity: 0; transform: translateX(40px); }
+         to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes fadeSlideUp {
+         from { opacity: 0; transform: translateY(22px); }
+         to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes float {
+         0%, 100% { transform: translateY(0) scale(1); }
+         50%       { transform: translateY(-18px) scale(1.04); }
+      }
+      @keyframes pulse {
+         0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+         50%       { transform: scale(1.12); box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+      }
+      @keyframes shimmer {
+         0%   { background-position: -200% center; }
+         100% { background-position:  200% center; }
+      }
+      @keyframes borderGlow {
+         0%, 100% { box-shadow: 0 0 0 3px rgba(26,115,232,0.13); }
+         50%       { box-shadow: 0 0 0 5px rgba(26,115,232,0.22); }
+      }
+      @keyframes featureFadeIn {
+         from { opacity: 0; transform: translateX(-16px); }
+         to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes checkPop {
+         0%   { transform: scale(0.6); opacity: 0; }
+         70%  { transform: scale(1.15); }
+         100% { transform: scale(1);   opacity: 1; }
+      }
+
+      /* Panel entrances */
+      .register-brand-panel {
+         animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) both;
+      }
+      .register-form-panel {
+         animation: slideInRight 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+      }
+
+      /* Floating background orbs */
+      .register-brand-panel::before {
+         animation: float 7s ease-in-out infinite;
+      }
+      .register-brand-panel::after {
+         animation: float 9s ease-in-out 1.5s infinite;
+      }
+
+      /* Brand logo icon heartbeat pulse */
+      .brand-logo-icon {
+         animation: pulse 2.4s ease-in-out infinite;
+      }
+
+      /* Feature rows stagger */
+      .brand-feature:nth-child(1) { animation: featureFadeIn 0.5s ease 0.6s both; }
+      .brand-feature:nth-child(2) { animation: featureFadeIn 0.5s ease 0.75s both; }
+      .brand-feature:nth-child(3) { animation: featureFadeIn 0.5s ease 0.9s both; }
+
+      /* Form header & section labels */
+      .form-header {
+         animation: fadeSlideUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.35s both;
+      }
+      .form-section-label {
+         animation: fadeSlideUp 0.4s ease 0.4s both;
+      }
+
+      /* Field rows stagger */
+      .field-row:nth-of-type(1) { animation: fadeSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.45s both; }
+      .field-row:nth-of-type(2) { animation: fadeSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.55s both; }
+      .field-row:nth-of-type(3) { animation: fadeSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.65s both; }
+
+      /* Checkbox group */
+      .checkbox-group {
+         animation: fadeSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.6s both;
+      }
+
+      /* Checkbox pop on check */
+      .checkbox-item input:checked + label .check-icon {
+         animation: checkPop 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      }
+
+      /* Submit button */
+      .btn-register {
+         animation: fadeSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.8s both;
+      }
+      .login-link {
+         animation: fadeSlideUp 0.4s ease 0.9s both;
+      }
+
+      /* Input focus glow pulse */
+      .form-control:focus, .form-select:focus {
+         animation: borderGlow 1.8s ease-in-out infinite;
+         transform: scale(1.012);
+         transition: transform 0.18s ease, border-color 0.18s, box-shadow 0.18s, background 0.18s;
+      }
+
+      /* Icon colour on focus */
+      .input-wrapper:focus-within .input-icon {
+         color: #1a73e8;
+         transition: color 0.2s;
+      }
+
+      /* Button shimmer on hover */
+      .btn-register:hover {
+         background: linear-gradient(90deg,
+            #1a73e8 0%, #3b8ef0 40%, #1a73e8 60%, #1558b0 100%);
+         background-size: 200% auto;
+         animation: shimmer 1.2s linear infinite;
+      }
+
+      /* Checkbox tile hover lift */
+      .checkbox-item label {
+         transition: border-color 0.18s, background 0.18s, color 0.18s, transform 0.15s, box-shadow 0.15s;
+      }
+      .checkbox-item label:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 4px 12px rgba(26,115,232,0.12);
+      }
    </style>
 </head>
 <body>

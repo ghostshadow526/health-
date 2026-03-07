@@ -177,6 +177,112 @@
          .login-form-panel { padding: 28px 16px; }
          .form-header h2 { font-size: 20px; }
       }
+
+      /* ═══════════════════════════════
+         ANIMATIONS
+      ═══════════════════════════════ */
+
+      /* Keyframes */
+      @keyframes slideInLeft {
+         from { opacity: 0; transform: translateX(-40px); }
+         to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slideInRight {
+         from { opacity: 0; transform: translateX(40px); }
+         to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes fadeSlideUp {
+         from { opacity: 0; transform: translateY(22px); }
+         to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes float {
+         0%, 100% { transform: translateY(0) scale(1); }
+         50%       { transform: translateY(-18px) scale(1.04); }
+      }
+      @keyframes pulse {
+         0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+         50%       { transform: scale(1.12); box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+      }
+      @keyframes shimmer {
+         0%   { background-position: -200% center; }
+         100% { background-position:  200% center; }
+      }
+      @keyframes borderGlow {
+         0%, 100% { box-shadow: 0 0 0 3px rgba(26,115,232,0.13); }
+         50%       { box-shadow: 0 0 0 5px rgba(26,115,232,0.22); }
+      }
+
+      /* Panel entrances */
+      .login-brand-panel {
+         animation: slideInLeft 0.7s cubic-bezier(0.22,1,0.36,1) both;
+      }
+      .login-form-panel {
+         animation: slideInRight 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+      }
+
+      /* Floating background orbs */
+      .login-brand-panel::before {
+         animation: float 7s ease-in-out infinite;
+      }
+      .login-brand-panel::after {
+         animation: float 9s ease-in-out 1.5s infinite;
+      }
+
+      /* Brand logo icon heartbeat pulse */
+      .brand-logo-icon {
+         animation: pulse 2.4s ease-in-out infinite;
+      }
+
+      /* Staggered form content fade-up */
+      .form-header {
+         animation: fadeSlideUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.35s both;
+      }
+      #alert-container {
+         animation: fadeSlideUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.45s both;
+      }
+      .form-group:nth-child(1) {
+         animation: fadeSlideUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.50s both;
+      }
+      .form-group:nth-child(2) {
+         animation: fadeSlideUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.62s both;
+      }
+      .btn-login {
+         animation: fadeSlideUp 0.55s cubic-bezier(0.22,1,0.36,1) 0.74s both;
+      }
+      .register-link {
+         animation: fadeSlideUp 0.45s cubic-bezier(0.22,1,0.36,1) 0.85s both;
+      }
+
+      /* Brand stats stagger */
+      .brand-stat-value {
+         animation: fadeSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.9s both;
+      }
+
+      /* Input focus — continuous glow pulse */
+      .form-control:focus {
+         animation: borderGlow 1.8s ease-in-out infinite;
+      }
+
+      /* Input wrapper icon colour shift on sibling focus */
+      .input-wrapper .form-control:focus ~ .input-icon,
+      .input-wrapper:focus-within .input-icon {
+         color: #1a73e8;
+         transition: color 0.2s;
+      }
+
+      /* Button shimmer on hover */
+      .btn-login:hover {
+         background: linear-gradient(90deg,
+            #1a73e8 0%, #3b8ef0 40%, #1a73e8 60%, #1558b0 100%);
+         background-size: 200% auto;
+         animation: shimmer 1.2s linear infinite;
+      }
+
+      /* Input float label lift — scale on focus */
+      .input-wrapper .form-control:focus {
+         transform: scale(1.012);
+         transition: transform 0.18s ease, border-color 0.18s, box-shadow 0.18s, background 0.18s;
+      }
    </style>
 </head>
 <body>
