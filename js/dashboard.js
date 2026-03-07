@@ -297,13 +297,13 @@ function analyzeBP(systolic, diastolic, records) {
       icon = 'fa-warning';
       color = '#e74c3c';
       message = `Your blood pressure is ${systolic}/${diastolic} mmHg - Stage 2 Hypertension.`;
-      recommendation = '⚠️ Please consult your healthcare provider soon. Take medications as prescribed.';
+      recommendation = 'Please consult your healthcare provider soon. Take medications as prescribed.';
    } else if (systolic >= 180 || diastolic >= 120) {
       status = 'Critical';
       icon = 'fa-ambulance';
       color = '#c0392b';
-      message = `⚠️ URGENT: Your blood pressure is ${systolic}/${diastolic} mmHg - Hypertensive Crisis!`;
-      recommendation = '🚨 Seek immediate medical attention! This requires urgent care.';
+      message = `URGENT: Your blood pressure is ${systolic}/${diastolic} mmHg - Hypertensive Crisis!`;
+      recommendation = 'Seek immediate medical attention. This requires urgent care.';
    }
 
    // Check for trends
@@ -314,9 +314,9 @@ function analyzeBP(systolic, diastolic, records) {
          const isDecreasing = recentBPs.every((val, i) => i === 0 || val < recentBPs[i - 1]);
          
          if (isIncreasing) {
-            recommendation += ' 📈 Trend Alert: Your BP has been increasing. Review your diet and stress levels.';
+            recommendation += ' Trend: Your BP has been increasing. Review your diet and stress levels.';
          } else if (isDecreasing) {
-            recommendation += ' 📉 Great news! Your BP is trending downward. Keep up your healthy habits!';
+            recommendation += ' Your BP is trending downward. Keep up your healthy habits!';
          }
       }
    }
@@ -347,7 +347,7 @@ function analyzeHeartRate(hr, records) {
       icon = 'fa-warning';
       color = '#e74c3c';
       message = `Your heart rate is ${hr} bpm - higher than normal.`;
-      recommendation = '⚠️ If persistent or with symptoms (chest pain, dizziness), consult your doctor immediately.';
+      recommendation = 'If persistent or with symptoms (chest pain, dizziness), consult your doctor immediately.';
    } else if (hr < 60 && hr >= 50) {
       status = 'Low';
       icon = 'fa-info-circle';
@@ -385,7 +385,7 @@ function analyzeBloodSugar(bs, records) {
       icon = 'fa-arrow-down';
       color = '#e74c3c';
       message = `Your blood sugar is ${bs} mg/dL - too low!`;
-      recommendation = '⚠️ Eat something with sugar immediately (juice, candy). If symptoms persist, seek medical help.';
+      recommendation = 'Eat something with sugar immediately (juice, candy). If symptoms persist, seek medical help.';
    } else if (bs >= 70 && bs <= 100) {
       status = 'Normal (Fasting)';
       icon = 'fa-check-circle';
@@ -408,8 +408,8 @@ function analyzeBloodSugar(bs, records) {
       status = 'Very High';
       icon = 'fa-warning';
       color = '#c0392b';
-      message = `⚠️ Your blood sugar is ${bs} mg/dL - dangerously high!`;
-      recommendation = '🚨 Contact your healthcare provider. Check ketones if diabetic. Drink water and take prescribed insulin.';
+      message = `Your blood sugar is ${bs} mg/dL - dangerously high!`;
+      recommendation = 'Contact your healthcare provider. Check ketones if diabetic. Drink water and take prescribed insulin.';
    }
 
    // Analyze variability
@@ -421,9 +421,9 @@ function analyzeBloodSugar(bs, records) {
          const variability = max - min;
          
          if (variability > 50) {
-            recommendation += ` 📊 Your glucose levels vary significantly (${variability} mg/dL range). Aim for more consistency.`;
+            recommendation += ` Your glucose levels vary significantly (${variability} mg/dL range). Aim for more consistency.`;
          } else {
-            recommendation += ` 📊 Your glucose levels are quite stable. Great control!`;
+            recommendation += ` Your glucose levels are quite stable. Great control!`;
          }
       }
    }
@@ -483,22 +483,22 @@ function analyzeConsistency(records) {
       icon = 'fa-star';
       color = '#2ecc71';
       message = 'You\'re tracking your health today!';
-      recommendation = '⭐ Excellent! Daily monitoring helps you stay on top of your health.';
+      recommendation = 'Excellent! Daily monitoring helps you stay on top of your health.';
    } else if (daysSinceLastEntry === 1) {
       icon = 'fa-calendar-check-o';
       color = '#3498db';
       message = 'Last entry was yesterday.';
-      recommendation = '✅ Good consistency! Try to measure your vitals today.';
+      recommendation = 'Good consistency! Try to measure your vitals today.';
    } else if (daysSinceLastEntry <= 3) {
       icon = 'fa-calendar';
       color = '#f39c12';
       message = `It's been ${daysSinceLastEntry} days since your last entry.`;
-      recommendation = '📅 Consider tracking more frequently for better health insights - daily is ideal!';
+      recommendation = 'Consider tracking more frequently for better health insights - daily is ideal!';
    } else {
       icon = 'fa-calendar-times-o';
       color = '#e74c3c';
       message = `Your last entry was ${daysSinceLastEntry} days ago.`;
-      recommendation = '⚠️ Regular monitoring is crucial! Try to record your vitals at least 2-3 times per week.';
+      recommendation = 'Regular monitoring is crucial. Try to record your vitals at least 2-3 times per week.';
    }
 
    // Check entry frequency over last 30 days
@@ -506,9 +506,9 @@ function analyzeConsistency(records) {
    const recentEntries = records.filter(r => new Date(r.timestamp) >= thirtyDaysAgo).length;
    
    if (recentEntries >= 20) {
-      recommendation += ' 🌟 Amazing dedication - you\'ve logged ' + recentEntries + ' times this month!';
+      recommendation += ' Amazing dedication - you\'ve logged ' + recentEntries + ' times this month!';
    } else if (recentEntries >= 10) {
-      recommendation += ' 👍 Good tracking - ' + recentEntries + ' entries this month. Aim for daily monitoring!';
+      recommendation += ' Good tracking - ' + recentEntries + ' entries this month. Aim for daily monitoring!';
    }
 
    return {
@@ -636,7 +636,7 @@ function displayInsights(insights) {
                <h4 style="margin: 0 0 10px 0; color: white; font-size: 18px; font-weight: 600;">${insight.title}</h4>
                <p style="margin: 0 0 10px 0; font-size: 15px; opacity: 0.95;">${insight.message}</p>
                <p style="margin: 0; font-size: 14px; opacity: 0.85; font-style: italic;">
-                  💡 ${insight.recommendation}
+                  ${insight.recommendation}
                </p>
             </div>
          </div>
@@ -805,11 +805,11 @@ function updateCharts(records) {
                            label += context.parsed.y + ' mmHg';
                            // Add status indicator
                            if (context.datasetIndex === 0) { // Systolic
-                              if (context.parsed.y >= 140) label += ' ⚠️ High';
-                              else if (context.parsed.y < 90) label += ' ⚠️ Low';
+                              if (context.parsed.y >= 140) label += ' (High)';
+                              else if (context.parsed.y < 90) label += ' (Low)';
                            } else { // Diastolic
-                              if (context.parsed.y >= 90) label += ' ⚠️ High';
-                              else if (context.parsed.y < 60) label += ' ⚠️ Low';
+                              if (context.parsed.y >= 90) label += ' (High)';
+                              else if (context.parsed.y < 60) label += ' (Low)';
                            }
                         }
                         return label;
@@ -933,8 +933,8 @@ function updateCharts(records) {
                         if (label) label += ': ';
                         if (context.parsed.y !== null) {
                            label += context.parsed.y + ' bpm';
-                           if (context.parsed.y >= 100) label += ' ⚠️ High';
-                           else if (context.parsed.y < 60) label += ' ⚠️ Low';
+                           if (context.parsed.y >= 100) label += ' (High)';
+                           else if (context.parsed.y < 60) label += ' (Low)';
                         }
                         return label;
                      }
@@ -1057,8 +1057,8 @@ function updateCharts(records) {
                         if (label) label += ': ';
                         if (context.parsed.y !== null) {
                            label += context.parsed.y + ' mg/dL';
-                           if (context.parsed.y >= 180) label += ' ⚠️ High';
-                           else if (context.parsed.y < 70) label += ' ⚠️ Low';
+                           if (context.parsed.y >= 180) label += ' (High)';
+                           else if (context.parsed.y < 70) label += ' (Low)';
                         }
                         return label;
                      }
@@ -1305,46 +1305,48 @@ async function loadReminders() {
 
 function displayReminders(reminders) {
    const remindersList = document.getElementById('remindersList');
-   
+
    if (reminders.length === 0) {
-      remindersList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No reminders yet. Add your first reminder!</p>';
+      remindersList.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:30px 0;">No reminders yet. Add your first reminder!</p>';
       return;
    }
+
+   const typeIcons = {
+      medication: 'fa-medkit',
+      measurement: 'fa-heartbeat',
+      appointment: 'fa-calendar',
+      exercise: 'fa-child',
+      other: 'fa-bell'
+   };
 
    remindersList.innerHTML = reminders.map(reminder => {
       const date = new Date(reminder.dateTime);
       const isPast = date < new Date();
-      const typeIcons = {
-         medication: 'fa-medkit',
-         measurement: 'fa-heartbeat',
-         appointment: 'fa-calendar',
-         exercise: 'fa-heartbeat',
-         other: 'fa-bell'
-      };
+      const icon = typeIcons[reminder.type] || 'fa-bell';
 
       return `
-         <div style="padding: 15px; border-bottom: 1px solid #eee; ${reminder.completed ? 'opacity: 0.6;' : ''}">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-               <div style="flex: 1;">
-                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                     <i class="fa ${typeIcons[reminder.type]}" style="color: #2895f1;"></i>
-                     <strong style="${reminder.completed ? 'text-decoration: line-through;' : ''}">${reminder.title}</strong>
-                  </div>
-                  <div style="font-size: 14px; color: #666; margin-left: 24px;">
-                     <i class="fa fa-clock-o"></i> ${date.toLocaleString()}
-                  </div>
-                  ${reminder.notes ? `<div style="font-size: 13px; color: #999; margin-left: 24px; margin-top: 5px;">${reminder.notes}</div>` : ''}
+         <div class="reminder-item${reminder.completed ? ' reminder-completed' : ''}">
+            <div class="reminder-left">
+               <div class="reminder-type-icon">
+                  <i class="fa ${icon}"></i>
                </div>
-               <div style="display: flex; gap: 10px;">
-                  <button onclick="toggleReminder('${reminder.id}', ${!reminder.completed})" 
-                     style="background: ${reminder.completed ? '#2ecc71' : '#f39c12'}; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                     ${reminder.completed ? 'Undo' : 'Complete'}
-                  </button>
-                  <button onclick="deleteReminder('${reminder.id}')" 
-                     style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                     Delete
-                  </button>
+               <div class="reminder-body">
+                  <div class="reminder-title">${reminder.title}</div>
+                  <div class="reminder-time">
+                     <i class="fa fa-clock-o"></i>
+                     ${date.toLocaleString()}
+                     ${isPast && !reminder.completed ? ' &mdash; <span style="color:#ef4444;font-size:11px;font-weight:600;">Past due</span>' : ''}
+                  </div>
+                  ${reminder.notes ? `<div class="reminder-notes">${reminder.notes}</div>` : ''}
                </div>
+            </div>
+            <div class="reminder-actions">
+               <button onclick="toggleReminder('${reminder.id}', ${!reminder.completed})"
+                  class="btn-rem ${reminder.completed ? 'btn-rem-undo' : 'btn-rem-complete'}">
+                  ${reminder.completed ? 'Undo' : 'Done'}
+               </button>
+               <button onclick="deleteReminder('${reminder.id}')"
+                  class="btn-rem btn-rem-delete">Remove</button>
             </div>
          </div>
       `;
@@ -1444,16 +1446,16 @@ function loadHealthTips() {
 
    const healthTipsList = document.getElementById('healthTipsList');
    healthTipsList.innerHTML = healthTips.map(tip => `
-      <div class="col-md-6">
+      <div class="col-md-6 col-xs-12">
          <div class="card">
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-               <div style="width: 50px; height: 50px; border-radius: 10px; background: ${tip.color}; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+            <div class="tip-card-header">
+               <div class="tip-icon" style="background:${tip.color};">
                   <i class="fa ${tip.icon}"></i>
                </div>
-               <h3 style="margin: 0; font-size: 20px; color: #333;">${tip.title}</h3>
+               <h4 class="tip-card-title">${tip.title}</h4>
             </div>
-            <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
-               ${tip.tips.map(t => `<li>${t}</li>`).join('')}
+            <ul class="tip-list">
+               ${tip.tips.map(t => `<li><span class="tip-bullet" style="background:${tip.color};"></span>${t}</li>`).join('')}
             </ul>
          </div>
       </div>

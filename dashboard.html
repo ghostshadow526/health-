@@ -429,10 +429,13 @@
       }
 
       @media (max-width: 768px) {
-         .navbar-custom { height: 56px; }
+         .navbar-custom { height: auto; min-height: 56px; }
+         .navbar-custom .container { height: auto; }
          .navbar-brand-custom { font-size: 19px; }
          .user-name { max-width: 110px; }
-         .btn-logout { padding: 5px 12px; }
+         .btn-logout { display: none !important; }
+         .navbar-hamburger { display: flex; }
+         .nav-pills { display: none; }
          .dashboard-container { padding: 20px 10px; }
          .welcome-section { padding: 24px 22px; border-radius: 12px; margin-bottom: 22px; }
          .welcome-section::after { display: none; }
@@ -466,12 +469,193 @@
          .modal-body { padding: 20px; }
       }
 
+      /* ─── Hamburger button ─── */
+      .navbar-hamburger {
+         display: none;
+         flex-direction: column;
+         justify-content: center;
+         gap: 5px;
+         background: none;
+         border: 1.5px solid #e5e7eb;
+         border-radius: 8px;
+         cursor: pointer;
+         padding: 7px 9px;
+         transition: border-color 0.18s;
+         flex-shrink: 0;
+      }
+      .navbar-hamburger:hover { border-color: #1a73e8; }
+      .navbar-hamburger span {
+         display: block;
+         width: 18px;
+         height: 2px;
+         background: #374151;
+         border-radius: 2px;
+         transition: all 0.22s;
+      }
+      .navbar-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .navbar-hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+      .navbar-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+      /* ─── Mobile nav dropdown ─── */
+      .navbar-mobile-menu {
+         display: none;
+         flex-direction: column;
+         padding: 6px 0 12px;
+         border-top: 1px solid #e9ecef;
+      }
+      .navbar-mobile-menu.open {
+         display: flex;
+         animation: menuSlide 0.2s ease;
+      }
+      @keyframes menuSlide {
+         from { opacity: 0; transform: translateY(-6px); }
+         to   { opacity: 1; transform: translateY(0); }
+      }
+      .mobile-nav-btn {
+         display: flex;
+         align-items: center;
+         gap: 10px;
+         background: none;
+         border: none;
+         border-bottom: 1px solid #f3f4f6;
+         text-align: left;
+         padding: 13px 2px;
+         font-size: 14px;
+         font-weight: 500;
+         color: #374151;
+         cursor: pointer;
+         font-family: 'Inter', sans-serif;
+         transition: color 0.15s;
+         width: 100%;
+      }
+      .mobile-nav-btn:last-child { border-bottom: none; }
+      .mobile-nav-btn:hover { color: #1a73e8; }
+      .mobile-nav-btn i { width: 18px; text-align: center; color: #9ca3af; font-size: 14px; }
+      .mobile-nav-btn:hover i { color: #1a73e8; }
+      .mobile-nav-signout { color: #dc2626 !important; margin-top: 2px; }
+      .mobile-nav-signout i { color: #fca5a5 !important; }
+      .mobile-nav-signout:hover { color: #b91c1c !important; }
+
+      /* ─── Reminder item cards ─── */
+      .reminder-item {
+         display: flex;
+         justify-content: space-between;
+         align-items: flex-start;
+         gap: 12px;
+         padding: 16px 0;
+         border-bottom: 1px solid #f3f4f6;
+      }
+      .reminder-item:last-child { border-bottom: none; padding-bottom: 0; }
+      .reminder-item.reminder-completed { opacity: 0.55; }
+      .reminder-left {
+         display: flex;
+         align-items: flex-start;
+         gap: 12px;
+         flex: 1;
+         min-width: 0;
+      }
+      .reminder-type-icon {
+         width: 36px; height: 36px;
+         border-radius: 8px;
+         background: #eff6ff;
+         color: #1a73e8;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         flex-shrink: 0;
+         font-size: 15px;
+      }
+      .reminder-body { flex: 1; min-width: 0; }
+      .reminder-title {
+         font-size: 14px;
+         font-weight: 600;
+         color: #111827;
+         margin-bottom: 4px;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
+      }
+      .reminder-item.reminder-completed .reminder-title { text-decoration: line-through; }
+      .reminder-time {
+         font-size: 12px;
+         color: #6b7280;
+         display: flex;
+         align-items: center;
+         gap: 5px;
+      }
+      .reminder-notes { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+      .reminder-actions { display: flex; gap: 7px; flex-shrink: 0; }
+      .btn-rem {
+         border: none;
+         padding: 6px 12px;
+         border-radius: 6px;
+         cursor: pointer;
+         font-size: 12px;
+         font-weight: 600;
+         font-family: 'Inter', sans-serif;
+         transition: opacity 0.15s;
+         white-space: nowrap;
+      }
+      .btn-rem:hover { opacity: 0.8; }
+      .btn-rem-complete { background: #fef3c7; color: #92400e; }
+      .btn-rem-undo     { background: #dcfce7; color: #166534; }
+      .btn-rem-delete   { background: #fee2e2; color: #991b1b; }
+
+      /* ─── Health tip cards ─── */
+      .tip-icon {
+         width: 44px; height: 44px;
+         border-radius: 10px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         color: white;
+         font-size: 20px;
+         flex-shrink: 0;
+      }
+      .tip-card-header {
+         display: flex;
+         align-items: center;
+         gap: 14px;
+         margin-bottom: 16px;
+      }
+      .tip-card-title {
+         font-size: 16px;
+         font-weight: 700;
+         color: #111827;
+         margin: 0;
+      }
+      .tip-list {
+         margin: 0;
+         padding: 0;
+         list-style: none;
+      }
+      .tip-list li {
+         display: flex;
+         align-items: flex-start;
+         gap: 10px;
+         padding: 8px 0;
+         border-bottom: 1px solid #f3f4f6;
+         font-size: 13.5px;
+         color: #374151;
+         line-height: 1.5;
+      }
+      .tip-list li:last-child { border-bottom: none; padding-bottom: 0; }
+      .tip-bullet {
+         width: 7px; height: 7px;
+         border-radius: 50%;
+         flex-shrink: 0;
+         margin-top: 6px;
+      }
+
       @media (max-width: 480px) {
          .welcome-section h1 { font-size: 17px; }
          .stat-value { font-size: 20px; }
          .card { padding: 14px; }
          .user-chip { display: none; }
          .navbar-nav-custom { gap: 8px; }
+         .reminder-actions { flex-direction: column; gap: 5px; }
+         .btn-rem { padding: 5px 8px; font-size: 11px; }
+         .reminder-title { white-space: normal; }
       }
    </style>
 </head>
@@ -486,8 +670,20 @@
                   <div class="user-avatar" id="userAvatar">U</div>
                   <span class="user-name" id="userName">Loading...</span>
                </div>
+               <button class="navbar-hamburger" id="navToggle" aria-label="Open menu">
+                  <span></span><span></span><span></span>
+               </button>
                <button class="btn-logout" id="logoutBtn">Sign out</button>
             </div>
+         </div>
+         <!-- Mobile nav dropdown -->
+         <div class="navbar-mobile-menu" id="mobileMenu">
+            <button class="mobile-nav-btn" data-tab="overview"><i class="fa fa-th-large"></i> Overview</button>
+            <button class="mobile-nav-btn" data-tab="input"><i class="fa fa-plus-circle"></i> Add Data</button>
+            <button class="mobile-nav-btn" data-tab="reminders"><i class="fa fa-bell"></i> Reminders</button>
+            <button class="mobile-nav-btn" data-tab="tips"><i class="fa fa-lightbulb-o"></i> Health Tips</button>
+            <button class="mobile-nav-btn" data-tab="profile"><i class="fa fa-user"></i> Profile</button>
+            <button class="mobile-nav-btn mobile-nav-signout" id="mobileLogoutBtn"><i class="fa fa-sign-out"></i> Sign out</button>
          </div>
       </div>
    </nav>
@@ -887,5 +1083,40 @@
    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
    <!-- Include Dashboard JS as module -->
    <script type="module" src="js/dashboard.js"></script>
+
+   <!-- Hamburger menu logic -->
+   <script>
+      const navToggle = document.getElementById('navToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+
+      navToggle.addEventListener('click', () => {
+         navToggle.classList.toggle('open');
+         mobileMenu.classList.toggle('open');
+      });
+
+      document.querySelectorAll('.mobile-nav-btn[data-tab]').forEach(btn => {
+         btn.addEventListener('click', () => {
+            const tabName = btn.getAttribute('data-tab');
+            // Sync nav pills active state
+            document.querySelectorAll('.nav-link').forEach(t => t.classList.remove('active'));
+            const pill = document.querySelector(`.nav-link[data-tab="${tabName}"]`);
+            if (pill) pill.classList.add('active');
+            // Show selected tab
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            const tabEl = document.getElementById(tabName + '-tab');
+            if (tabEl) tabEl.style.display = 'block';
+            // Close menu
+            navToggle.classList.remove('open');
+            mobileMenu.classList.remove('open');
+         });
+      });
+
+      const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+      if (mobileLogoutBtn) {
+         mobileLogoutBtn.addEventListener('click', () => {
+            document.getElementById('logoutBtn').click();
+         });
+      }
+   </script>
 </body>
 </html>
