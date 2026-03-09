@@ -645,6 +645,56 @@
          .btn-rem { padding: 5px 8px; font-size: 11px; }
          .reminder-title { white-space: normal; }
       }
+
+      /* ─── Reminder Tips card ─── */
+      .reminder-tips-card {
+         background: linear-gradient(135deg, #2895f1 0%, #0060b1 100%) !important;
+         color: #ffffff !important;
+         overflow: hidden;
+         word-break: break-word;
+         box-sizing: border-box;
+      }
+      .reminder-tips-card h4 {
+         margin-top: 0;
+         color: #ffffff;
+         font-size: 16px;
+         font-weight: 700;
+         letter-spacing: 0.2px;
+         text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      }
+      .reminder-tips-card p,
+      .reminder-tips-card ul {
+         font-size: 14px;
+         color: #e8f4ff;
+         margin: 0 0 8px;
+         padding-left: 18px;
+         line-height: 1.6;
+         text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+      }
+      .reminder-tips-card ul {
+         padding-left: 20px;
+         margin: 0;
+      }
+      .reminder-tips-card li {
+         margin-bottom: 6px;
+         color: #e8f4ff;
+      }
+      @media (max-width: 767px) {
+         .reminder-tips-card {
+            margin-top: 8px;
+            padding: 18px 16px;
+         }
+         .reminder-tips-card h4 { font-size: 15px; }
+         .reminder-tips-card p,
+         .reminder-tips-card ul,
+         .reminder-tips-card li { font-size: 13px; }
+      }
+      @media (max-width: 480px) {
+         .reminder-tips-card {
+            padding: 14px 12px;
+         }
+         .reminder-tips-card ul { padding-left: 16px; }
+      }
    </style>
 </head>
 <body>
@@ -934,10 +984,10 @@
                   </div>
                </div>
                <div class="col-md-4 col-xs-12">
-                  <div class="card" style="background: linear-gradient(135deg, #2895f1 0%, #0060b1 100%); color: white;">
-                     <h4 style="margin-top: 0; color: white;">Reminder Tips</h4>
-                     <p style="font-size: 14px; opacity: 0.9;">Set reminders for:</p>
-                     <ul style="font-size: 14px; opacity: 0.9;">
+                  <div class="card reminder-tips-card">
+                     <h4>Reminder Tips</h4>
+                     <p>Set reminders for:</p>
+                     <ul>
                         <li>Taking medications</li>
                         <li>Measuring vitals</li>
                         <li>Doctor appointments</li>
