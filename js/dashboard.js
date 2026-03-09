@@ -292,18 +292,18 @@ function analyzeBP(systolic, diastolic, records) {
       color = '#e67e22';
       message = `Your blood pressure is ${systolic}/${diastolic} mmHg - Stage 1 Hypertension.`;
       recommendation = 'Consult your doctor. Focus on lifestyle changes: reduce salt, exercise regularly, manage stress.';
-   } else if (systolic >= 140 || diastolic >= 90) {
-      status = 'High (Stage 2)';
-      icon = 'fa-warning';
-      color = '#e74c3c';
-      message = `Your blood pressure is ${systolic}/${diastolic} mmHg - Stage 2 Hypertension.`;
-      recommendation = 'Please consult your healthcare provider soon. Take medications as prescribed.';
    } else if (systolic >= 180 || diastolic >= 120) {
       status = 'Critical';
       icon = 'fa-ambulance';
       color = '#c0392b';
       message = `URGENT: Your blood pressure is ${systolic}/${diastolic} mmHg - Hypertensive Crisis!`;
       recommendation = 'Seek immediate medical attention. This requires urgent care.';
+   } else if (systolic >= 140 || diastolic >= 90) {
+      status = 'High (Stage 2)';
+      icon = 'fa-warning';
+      color = '#e74c3c';
+      message = `Your blood pressure is ${systolic}/${diastolic} mmHg - Stage 2 Hypertension.`;
+      recommendation = 'Please consult your healthcare provider soon. Take medications as prescribed.';
    }
 
    // Check for trends
@@ -533,7 +533,7 @@ function calculateHealthScore(latestRecord) {
       } else if (systolic < 130 && diastolic < 85) {
          score += 20;
          factors.push('↑ Slightly elevated BP');
-      } else if (systolic < 140 || diastolic < 90) {
+      } else if (systolic < 140 && diastolic < 90) {
          score += 10;
          factors.push('⚠ High blood pressure');
       } else {
