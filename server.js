@@ -14,7 +14,6 @@ const path     = require('path');
 
 const app  = express();
 const PORT = process.env.PORT || 8000;
-const IS_VERCEL = process.env.VERCEL === '1';
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors());
@@ -107,7 +106,7 @@ app.get('*', (req, res) => {
 });
 
 // ─── Start (local) / export (Vercel) ─────────────────────────────────────────
-if (!IS_VERCEL) {
+if (require.main === module) {
    app.listen(PORT, () => {
       console.log(`\n  health+ server running at http://localhost:${PORT}\n`);
    });
