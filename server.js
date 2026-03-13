@@ -6,7 +6,11 @@
  * Deploy:         Render (Node web service) — see render.yaml
  */
 
-require('dotenv').config();
+try {
+   require('dotenv').config();
+} catch (_) {
+   // dotenv is optional in serverless environments where env vars are injected
+}
 
 const express  = require('express');
 const cors     = require('cors');
