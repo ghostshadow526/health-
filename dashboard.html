@@ -803,15 +803,37 @@
                         <i class="fa fa-lightbulb-o"></i>
                      </div>
                      <div style="position: relative; z-index: 1;">
-                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                           <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 16px; flex-wrap: wrap;">
+                           <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink:0;">
                               <i class="fa fa-magic"></i>
                            </div>
-                           <div>
-                              <h3 style="margin: 0; color: white; font-size: 22px;">AI Health Insights</h3>
+                           <div style="flex:1; min-width:160px;">
+                              <h3 style="margin: 0; color: white; font-size: 22px;">AI Health Insights <span id="aiProviderBadge" style="font-size:12px; background:rgba(255,255,255,0.25); border-radius:20px; padding:2px 10px; font-weight:500; vertical-align:middle; margin-left:6px;">Meta Llama 3.3</span></h3>
                               <p style="margin: 0; opacity: 0.9; font-size: 14px;" id="insightsDate">Analyzing your health data...</p>
                            </div>
+                           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                              <button id="refreshInsightsBtn" onclick="refreshAIInsights()" title="Refresh AI Analysis"
+                                 style="background:rgba(255,255,255,0.2); border:1.5px solid rgba(255,255,255,0.45); color:white; padding:7px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; transition:background 0.2s; display:flex; align-items:center; gap:6px;">
+                                 <i class="fa fa-refresh" id="refreshIcon"></i> Refresh
+                              </button>
+                           </div>
                         </div>
+
+                        <!-- API Key Setup Panel -->
+                        <div id="apiKeyPanel" style="display:none; background:rgba(0,0,0,0.25); border-radius:10px; padding:18px; margin-bottom:16px; border:1px solid rgba(255,255,255,0.2);">
+
+                           <!-- OpenRouter (built-in) -->
+                           <div style="display:flex; align-items:center; gap:10px; background:rgba(124,58,237,0.25); border-radius:8px; padding:12px 14px; border:1px solid rgba(124,58,237,0.4);">
+                              <span style="background:#7c3aed; border-radius:6px; padding:2px 10px; font-size:12px; font-weight:700; color:white; flex-shrink:0;">LLAMA 3.3</span>
+                              <div>
+                                 <p style="margin:0; font-size:14px; font-weight:600;">Meta Llama 3.3 70B · Built-in <span style="background:rgba(46,204,113,0.3); border:1px solid rgba(46,204,113,0.5); border-radius:20px; padding:1px 8px; font-size:11px; font-weight:600; margin-left:4px;">PRIMARY</span></p>
+                                 <p style="margin:2px 0 0 0; font-size:12px; opacity:0.75;">Powered by OpenRouter · No key needed · Works automatically via the server.</p>
+                              </div>
+                           </div>
+
+                           <p id="apiKeyStatus" style="margin:10px 0 0 0; font-size:13px; opacity:0.85;"></p>
+                        </div>
+
                         <div id="aiInsights" style="line-height: 1.8;">
                            <div style="text-align: center; padding: 20px; opacity: 0.7;">
                               <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i>
@@ -980,6 +1002,7 @@
                         My Reminders
                         <button class="btn-primary-custom" id="addReminderBtn">+ Add Reminder</button>
                      </div>
+                     <div id="reminderNotificationHint" class="alert" style="display:none;margin-bottom:15px;"></div>
                      <div id="remindersList"></div>
                   </div>
                </div>

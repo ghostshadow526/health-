@@ -5,6 +5,10 @@ const Chart = window.Chart;
 
 let currentUser = null;
 let bpChart, hrChart, bsChart, weightChart;
+let reminderNotificationTimer = null;
+
+const REMINDER_NOTIFY_OVERDUE_WINDOW_MS = 10 * 60 * 1000;
+const REMINDER_NOTIFICATION_INTERVAL_MS = 30 * 1000;
 
 function showToast(type, title, message = '') {
    const container = document.getElementById('toast-container');
@@ -34,8 +38,11 @@ onAuthStateChanged(auth, async (user) => {
       await loadUserProfile();
       await loadHealthData();
       await loadReminders();
+      await requestReminderNotificationPermission();
+      startReminderNotificationLoop();
       loadHealthTips();
    } else {
+      stopReminderNotificationLoop();
       window.location.href = 'login.html';
    }
 });
@@ -61,6 +68,7 @@ async function loadUserProfile() {
 // Logout functionality
 document.getElementById('logoutBtn').addEventListener('click', async () => {
    try {
+      stopReminderNotificationLoop();
       await signOut(auth);
       window.location.href = 'login.html';
    } catch (error) {
@@ -226,48 +234,236 @@ function updateLatestStats(latestRecord) {
    }
 }
 
-// AI Insights Generation
-function generateAIInsights(healthRecords) {
+// ─── AI Provider helpers (OpenRouter · Groq · Gemini · rule-based fallback) ────
+
+// ── OpenRouter — Meta Llama 3.3 70B (primary, no user key needed) ──
+async function callOpenRouterAPI(prompt) {
+   // Calls the local Express backend which holds the key securely
+   const resp = await fetch('/get_insight', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+   });
+
+   if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(`OpenRouter: ${err.error || 'HTTP ' + resp.status}`);
+   }
+
+   const data = await resp.json();
+   if (data.error) throw new Error(`OpenRouter: ${data.error}`);
+   return data.insight || null;
+}
+
+// ── Shared helpers ──
+function toggleApiKeyPanel() {
+   const panel = document.getElementById('apiKeyPanel');
+   if (!panel) return;
+   const isHidden = panel.style.display === 'none';
+   panel.style.display = isHidden ? 'block' : 'none';
+   if (isHidden) {
+      const status = document.getElementById('apiKeyStatus');
+      if (status) status.textContent = '✓ Meta Llama 3.3 (OpenRouter) — built-in, no key needed';
+   }
+}
+
+function setProviderBadge(name) {
+   const badge = document.getElementById('aiProviderBadge');
+   if (!badge) return;
+   const colors = {
+      'Llama 3.3 (OpenRouter)': '#7c3aed',
+      'Built-in':               'rgba(255,255,255,0.25)'
+   };
+   badge.textContent = name;
+   badge.style.background = colors[name] || 'rgba(255,255,255,0.25)';
+}
+
+function refreshAIInsights() {
+   if (window._lastHealthRecords?.length > 0) {
+      generateAIInsights(window._lastHealthRecords);
+   } else {
+      showToast('warning', 'No Data', 'Please add health data first.');
+   }
+}
+
+// Expose onclick-callable functions to global scope (ES module requirement)
+window.toggleApiKeyPanel  = toggleApiKeyPanel;
+window.refreshAIInsights  = refreshAIInsights;
+
+function buildHealthPrompt(healthRecords) {
+   const latest = healthRecords[0];
+   const count  = healthRecords.length;
+
+   // Latest vitals
+   const bp = latest.bloodPressure
+      ? `${latest.bloodPressure.systolic}/${latest.bloodPressure.diastolic} mmHg`
+      : 'not recorded';
+   const hr = latest.heartRate  ? `${latest.heartRate} bpm`        : 'not recorded';
+   const bs = latest.bloodSugar ? `${latest.bloodSugar} mg/dL`     : 'not recorded';
+   const wt = latest.weight     ? `${latest.weight.toFixed(1)} kg` : 'not recorded';
+   const notes = latest.notes   ? latest.notes.trim()              : '';
+
+   // Build trend history strings (last 10 entries)
+   const history = healthRecords.slice(0, 10);
+   const bpHist = history.map(r =>
+      r.bloodPressure ? `${r.bloodPressure.systolic}/${r.bloodPressure.diastolic}` : null
+   ).filter(Boolean).join(', ');
+   const hrHist = history.map(r => r.heartRate).filter(Boolean).join(', ');
+   const bsHist = history.map(r => r.bloodSugar).filter(Boolean).join(', ');
+   const wtHist = history.map(r => r.weight ? r.weight.toFixed(1) : null).filter(Boolean).join(', ');
+
+   return `You are a personal health assistant AI in the "health+" app. Analyze the user's vitals and notes, check trends, flag anything abnormal, and give friendly, readable insights with advice.
+
+User has ${count} recorded health entries.
+
+VITALS HISTORY (last ${Math.min(count,10)} entries, newest first):
+- Blood Pressure: ${bpHist || 'N/A'}
+- Heart Rate (bpm): ${hrHist || 'N/A'}
+- Blood Sugar (mg/dL): ${bsHist || 'N/A'}
+- Weight (kg): ${wtHist || 'N/A'}
+
+TODAY'S VITALS:
+- BP: ${bp}
+- HR: ${hr}
+- Glucose: ${bs}
+- Weight: ${wt}
+- Notes: "${notes || 'No notes'}"
+
+Respond with this structure:
+
+## Overall Health Assessment
+2-3 sentences on overall status.
+
+## Key Findings
+Bullet each metric: status label + brief explanation.
+
+## Trends & Patterns
+Improving / worsening / stable — and why it matters.
+
+## Personalized Recommendations
+3-5 concrete, evidence-based action items tailored to these numbers.
+
+## When to See a Doctor
+Be direct — urgent, soon, or routine check-up?
+
+Tone: warm, supportive, non-alarmist. Do NOT diagnose. Remind user to consult a real doctor for medical decisions. Keep response under 550 words.`;
+}
+
+function displayLLMInsights(text, providerName) {
+   const container = document.getElementById('aiInsights');
+   if (!container) return;
+
+   // Convert simple markdown to HTML
+   const html = text
+      .replace(/^## (.+)$/gm, '<h4 style="color:white; font-size:16px; font-weight:700; margin:18px 0 8px 0; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:6px;">$1</h4>')
+      .replace(/^\*\*(.+?)\*\*$/gm, '<strong>$1</strong>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^- (.+)$/gm, '<li style="margin-bottom:6px; opacity:0.95;">$1</li>')
+      .replace(/(<li[\s\S]*?<\/li>)+/g, '<ul style="padding-left:20px; margin:6px 0;">$&</ul>')
+      .replace(/\n{2,}/g, '</p><p style="margin:0 0 8px 0; opacity:0.92; font-size:15px;">')
+      .replace(/\n/g, ' ');
+
+   container.innerHTML = `
+      <div style="background:rgba(255,255,255,0.12); border-radius:12px; padding:22px; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.15);">
+         <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+            <div style="width:34px; height:34px; background:rgba(255,255,255,0.2); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+               <i class="fa fa-magic" style="color:white; font-size:16px;"></i>
+            </div>
+            <span style="color:white; font-size:14px; opacity:0.8;">Generated by <strong>${providerName || 'AI'}</strong> · Based on your health data</span>
+         </div>
+         <div style="color:white; font-size:15px; line-height:1.75;">
+            <p style="margin:0 0 8px 0; opacity:0.92; font-size:15px;">${html}</p>
+         </div>
+      </div>`;
+}
+
+// ─── AI Insights Generation (Groq/Llama → Gemini → rule-based fallback) ─────
+let _insightsHealthRecords = null;
+
+async function generateAIInsights(healthRecords) {
+   _insightsHealthRecords = healthRecords;
+   window._lastHealthRecords = healthRecords;
+
    const latestRecord = healthRecords[0];
-   const insights = [];
    const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-   
    document.getElementById('insightsDate').textContent = `Insights for ${today}`;
 
-   // Analyze Blood Pressure
+   const refreshIcon = document.getElementById('refreshIcon');
+   if (refreshIcon) refreshIcon.className = 'fa fa-refresh fa-spin';
+
+   const container = document.getElementById('aiInsights');
+   if (container) {
+      container.innerHTML = `
+         <div style="text-align:center; padding:30px; opacity:0.8;">
+            <i class="fa fa-spinner fa-spin" style="font-size:28px;"></i>
+            <p style="margin-top:12px; font-size:15px;">Meta Llama 3.3 is analyzing your vitals...</p>
+         </div>`;
+   }
+
+   const prompt = buildHealthPrompt(healthRecords);
+
+   // ── 1. OpenRouter — Meta Llama 3.3 70B (built-in, no user key needed) ──
+   try {
+      const text = await callOpenRouterAPI(prompt);
+      if (text) {
+         displayLLMInsights(text, 'Meta Llama 3.3 70B (OpenRouter)');
+         setProviderBadge('Llama 3.3 (OpenRouter)');
+         if (refreshIcon) refreshIcon.className = 'fa fa-refresh';
+         return;
+      }
+   } catch (err) {
+      console.warn('OpenRouter unavailable:', err.message);
+      if (container) container.innerHTML = `
+         <div style="background:rgba(231,76,60,0.22); border-radius:8px; padding:11px 15px; margin-bottom:12px; border:1px solid rgba(231,76,60,0.35); font-size:14px;">
+            <i class="fa fa-exclamation-triangle"></i>
+            <strong> Llama 3.3 error:</strong> ${err.message}. Trying fallback...
+         </div>`;
+      await new Promise(r => setTimeout(r, 400));
+   }
+
+   setProviderBadge('Built-in');
+
+   // ── 2. Rule-based fallback ──
+   const insights = [];
    if (latestRecord.bloodPressure) {
       const { systolic, diastolic } = latestRecord.bloodPressure;
       const bpInsight = analyzeBP(systolic, diastolic, healthRecords);
       if (bpInsight) insights.push(bpInsight);
    }
-
-   // Analyze Heart Rate
    if (latestRecord.heartRate) {
       const hrInsight = analyzeHeartRate(latestRecord.heartRate, healthRecords);
       if (hrInsight) insights.push(hrInsight);
    }
-
-   // Analyze Blood Sugar
    if (latestRecord.bloodSugar) {
       const bsInsight = analyzeBloodSugar(latestRecord.bloodSugar, healthRecords);
       if (bsInsight) insights.push(bsInsight);
    }
-
-   // Analyze Weight Trends
    if (latestRecord.weight && healthRecords.length >= 3) {
       const weightInsight = analyzeWeightTrend(healthRecords);
       if (weightInsight) insights.push(weightInsight);
    }
-
-   // Check data consistency
    const consistencyInsight = analyzeConsistency(healthRecords);
    if (consistencyInsight) insights.push(consistencyInsight);
+   insights.unshift(calculateHealthScore(latestRecord));
 
-   // General health score
-   const healthScore = calculateHealthScore(latestRecord);
-   insights.unshift(healthScore);
+   if (container) {
+      container.innerHTML += insights.map(insight => `
+         <div style="background: rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px);">
+            <div style="display: flex; align-items: start; gap: 15px;">
+               <div style="width: 40px; height: 40px; background: ${insight.color}; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="fa ${insight.icon}" style="font-size: 20px; color: white;"></i>
+               </div>
+               <div style="flex: 1;">
+                  <h4 style="margin: 0 0 10px 0; color: white; font-size: 18px; font-weight: 600;">${insight.title}</h4>
+                  <p style="margin: 0 0 10px 0; font-size: 15px; opacity: 0.95;">${insight.message}</p>
+                  <p style="margin: 0; font-size: 14px; opacity: 0.85; font-style: italic;">${insight.recommendation}</p>
+               </div>
+            </div>
+         </div>
+      `).join('');
+   }
 
-   displayInsights(insights);
+   if (refreshIcon) refreshIcon.className = 'fa fa-refresh';
 }
 
 function analyzeBP(systolic, diastolic, records) {
@@ -1242,6 +1438,7 @@ const reminderModal = document.getElementById('reminderModal');
 const addReminderBtn = document.getElementById('addReminderBtn');
 const closeReminderModal = document.getElementById('closeReminderModal');
 const reminderForm = document.getElementById('reminderForm');
+const reminderNotificationHint = document.getElementById('reminderNotificationHint');
 
 addReminderBtn.addEventListener('click', () => {
    reminderModal.style.display = 'block';
@@ -1282,22 +1479,162 @@ reminderForm.addEventListener('submit', async (e) => {
    }
 });
 
+document.addEventListener('click', async (event) => {
+   if (event.target?.id === 'enableReminderNotificationsBtn') {
+      await requestReminderNotificationPermission();
+   }
+});
+
+function updateReminderNotificationHint() {
+   if (!reminderNotificationHint) return;
+
+   if (!('Notification' in window)) {
+      reminderNotificationHint.style.display = 'block';
+      reminderNotificationHint.className = 'alert alert-warning';
+      reminderNotificationHint.textContent = 'This browser does not support notifications. Reminder alerts will show in-app only.';
+      return;
+   }
+
+   if (Notification.permission === 'granted') {
+      reminderNotificationHint.style.display = 'none';
+      reminderNotificationHint.innerHTML = '';
+      return;
+   }
+
+   reminderNotificationHint.style.display = 'block';
+
+   if (Notification.permission === 'denied') {
+      reminderNotificationHint.className = 'alert alert-warning';
+      reminderNotificationHint.textContent = 'Reminder notifications are blocked. Enable notifications for this site in your browser settings to receive alerts.';
+      return;
+   }
+
+   reminderNotificationHint.className = 'alert alert-info';
+   reminderNotificationHint.innerHTML = 'Enable browser notifications so reminders can alert you on time. <button type="button" id="enableReminderNotificationsBtn" class="btn btn-primary btn-xs" style="margin-left:8px;">Enable</button>';
+}
+
+function getReminderNotificationKey(reminder) {
+   return `reminder_notified_${currentUser?.uid || 'unknown'}_${reminder.id}_${reminder.dateTime}`;
+}
+
+function hasReminderBeenNotified(reminder) {
+   try {
+      return localStorage.getItem(getReminderNotificationKey(reminder)) === '1';
+   } catch {
+      return false;
+   }
+}
+
+function markReminderAsNotified(reminder) {
+   try {
+      localStorage.setItem(getReminderNotificationKey(reminder), '1');
+   } catch {
+      // no-op
+   }
+}
+
+async function requestReminderNotificationPermission() {
+   if (!('Notification' in window)) {
+      updateReminderNotificationHint();
+      return;
+   }
+
+   if (Notification.permission !== 'default') {
+      updateReminderNotificationHint();
+      return;
+   }
+
+   try {
+      await Notification.requestPermission();
+   } catch (error) {
+      console.error('Notification permission request failed:', error);
+   } finally {
+      updateReminderNotificationHint();
+   }
+}
+
+function sendReminderNotification(reminder) {
+   const message = reminder.notes ? `${reminder.title} — ${reminder.notes}` : reminder.title;
+   showToast('warning', 'Reminder due', message);
+
+   if (!('Notification' in window)) return;
+   if (Notification.permission !== 'granted') return;
+
+   try {
+      new Notification('Health+ Reminder', {
+         body: message,
+         icon: 'images/logo.png',
+         tag: `reminder-${reminder.id}`
+      });
+   } catch (error) {
+      console.error('Error showing browser notification:', error);
+   }
+}
+
+async function fetchUserReminders() {
+   const q = query(
+      collection(db, 'reminders'),
+      where('userId', '==', currentUser.uid),
+      orderBy('dateTime', 'asc')
+   );
+
+   const querySnapshot = await getDocs(q);
+   const reminders = [];
+
+   querySnapshot.forEach((doc) => {
+      reminders.push({ id: doc.id, ...doc.data() });
+   });
+
+   return reminders;
+}
+
+function checkDueReminderNotifications(reminders) {
+   const nowMs = Date.now();
+
+   reminders.forEach((reminder) => {
+      if (reminder.completed) return;
+
+      const reminderTimeMs = new Date(reminder.dateTime).getTime();
+      if (Number.isNaN(reminderTimeMs)) return;
+
+      const isDueNow = reminderTimeMs <= nowMs && (nowMs - reminderTimeMs) <= REMINDER_NOTIFY_OVERDUE_WINDOW_MS;
+      if (!isDueNow) return;
+      if (hasReminderBeenNotified(reminder)) return;
+
+      sendReminderNotification(reminder);
+      markReminderAsNotified(reminder);
+   });
+}
+
+function stopReminderNotificationLoop() {
+   if (reminderNotificationTimer) {
+      clearInterval(reminderNotificationTimer);
+      reminderNotificationTimer = null;
+   }
+}
+
+function startReminderNotificationLoop() {
+   stopReminderNotificationLoop();
+
+   reminderNotificationTimer = setInterval(async () => {
+      if (!currentUser) return;
+
+      try {
+         const reminders = await fetchUserReminders();
+         checkDueReminderNotifications(reminders);
+      } catch (error) {
+         console.error('Error checking reminder notifications:', error);
+      }
+   }, REMINDER_NOTIFICATION_INTERVAL_MS);
+}
+
 async function loadReminders() {
    try {
-      const q = query(
-         collection(db, 'reminders'),
-         where('userId', '==', currentUser.uid),
-         orderBy('dateTime', 'asc')
-      );
-
-      const querySnapshot = await getDocs(q);
-      const reminders = [];
-      
-      querySnapshot.forEach((doc) => {
-         reminders.push({ id: doc.id, ...doc.data() });
-      });
+      const reminders = await fetchUserReminders();
 
       displayReminders(reminders);
+      checkDueReminderNotifications(reminders);
+      updateReminderNotificationHint();
    } catch (error) {
       console.error('Error loading reminders:', error);
    }
